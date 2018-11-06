@@ -1,0 +1,8 @@
+#output-data {
+    font-family: monospace;
+}
+
+#output-data:hover {
+    border: 1px solid red;
+    cursor: copy;
+}

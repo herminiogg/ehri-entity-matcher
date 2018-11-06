@@ -8,6 +8,7 @@ case class Match(
   `type`: String,
   alternateNames: Option[Seq[String]],
   countryCode: Option[String] = None,
+  country: Option[String] = None,
   lat: Option[BigDecimal] = None,
   lng: Option[BigDecimal] = None,
   fcl: Option[String] = None

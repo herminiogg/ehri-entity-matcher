@@ -1,7 +1,8 @@
 GET     /                           controllers.HomeController.index
-GET     /find                       controllers.HomeController.find(text: String)
-POST    /find                       controllers.HomeController.findPost
-GET     /findWS                     controllers.HomeController.findWS
+GET     /find                       controllers.HomeController.find(text: String, kind: Option[String] ?= None)
+POST    /find                       controllers.HomeController.findPost(kind: Option[String] ?= None)
+GET     /findWS                     controllers.HomeController.findWS(kind: Option[String] ?= None)
+POST    /findJSON                   controllers.HomeController.findJson(kind: Option[String] ?= None)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
