@@ -108,7 +108,7 @@ let app = new Vue({
         <textarea class="textarea" rows="5" v-model="data" placeholder="List entities one per line"></textarea>
       </div>
       <div class="field" v-bind:disabled="data.trim() === ''">      
-        <label class="radio" v-for="key, value in types">
+        <label class="radio" v-for="(value, key) in types">
           <input type="radio" name="answer" v-bind:value="key" v-model="type">
           {{value}}
         </label>
@@ -146,7 +146,9 @@ let app = new Vue({
                <td>{{result.id}}</td>
                <td>{{result.type}}</td>
                <td>{{result.name}}</td>
-               <td>{{result.alternateNames ? result.alternateNames.slice(0, 4).join(", ") : ""}}</td>
+               <td v-bind:title="result.alternateNames ? result.alternateNames.join(', ') : ''">
+                {{result.alternateNames ? result.alternateNames.slice(0, 4).join(", ") : ""}}
+                </td>
                <td>{{result.country}}</td>
                <td>{{result.lat}}</td>
                <td>{{result.lng}}</td>

@@ -49,14 +49,10 @@ class HomeController @Inject()(
 
   def query(text: String, kind: Option[String]): Future[Seq[Match]] = {
     val params = Seq(
-      //"fq" -> "ancestors:1.E.EU",
-      //"fq" -> "fcl:P",
-      "qf" -> "name_exact^5.0 name^1.0 alternateNames",
+      "qf" -> "name_exact^5.0 name^1.0 name_phone^0.5 alternateNames",
       "pf" -> "name^50 alternateNames^20",
       "defType" -> "edismax",
-      "q" -> text,
-      "wt" -> "json",
-      "indent" -> "on"
+      "q" -> text
     ) ++ kind.map(k => "fq" -> s"type:$k").toSeq ++ typeSettings(kind) ++ solrSettings
 
     logger.debug(s"Solr params: $params")
