@@ -6,8 +6,10 @@ import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Framing, Sink, Source}
 import akka.util.ByteString
+import com.typesafe.config.Config
 import javax.inject._
 import models.Match
+import play.api.Configuration
 import play.api.libs.json.{JsNull, JsString, JsValue, Json}
 import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
@@ -19,7 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class HomeController @Inject()(
   cc: ControllerComponents,
-  ws: WSClient
+  ws: WSClient,
+  config: Configuration
 )(implicit ec: ExecutionContext, mat: Materializer) extends AbstractController(cc) {
 
   private val logger = play.api.Logger(classOf[HomeController])
@@ -31,20 +34,32 @@ class HomeController @Inject()(
     new Locale("", code).getDisplayCountry(Locale.ENGLISH)
   }
 
-  def query(text: String, kind: Option[String]): Future[Seq[Match]] = {
+  private def configSettings(path: String): Seq[(String, String)] = {
+    config.getOptional[Configuration](path).map { conf =>
+      conf.keys.map(k => k -> conf.getOptional[String](k)).collect {
+        case (k, Some(s)) => k -> s
+      }.toSeq
+    }.getOrElse(Seq.empty)
+  }
 
+  private def solrSettings: Seq[(String, String)] = configSettings("solr.global")
+
+  private def typeSettings(kind: Option[String]): Seq[(String, String)] =
+    kind.map(s => configSettings(s"solr.$s")).getOrElse(Seq.empty[(String, String)])
+
+  def query(text: String, kind: Option[String]): Future[Seq[Match]] = {
     val params = Seq(
       //"fq" -> "ancestors:1.E.EU",
       //"fq" -> "fcl:P",
       "qf" -> "name_exact^5.0 name^1.0 alternateNames",
       "pf" -> "name^50 alternateNames^20",
-      "defType" -> "dismax",
-      "mm" -> "2",
+      "defType" -> "edismax",
       "q" -> text,
       "wt" -> "json",
-      "indent" -> "on",
-      "debugQuery" -> "true"
-    ) ++ kind.map(k => "fq" -> s"type:$k").toSeq
+      "indent" -> "on"
+    ) ++ kind.map(k => "fq" -> s"type:$k").toSeq ++ typeSettings(kind) ++ solrSettings
+
+    logger.debug(s"Solr params: $params")
 
     ws.url("http://localhost:8983/solr/geonames/select")
       .withQueryStringParameters(params: _*)
