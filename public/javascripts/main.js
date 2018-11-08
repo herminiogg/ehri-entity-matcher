@@ -3,11 +3,19 @@ const HTTPS = window.location.host !== "localhost:9000"; // HACK!
 
 const COLS = ["id", "name", "country", "lat", "lng"];
 
+const TYPES = {
+  Place: "Place",
+  Person: "People",
+  CorporateBody: "Corporate Bodies",
+  Term: "Term"
+}
+
 let app = new Vue({
   el: '#app',
   data: {
     data: "",
     type: "Place",
+    types: TYPES,
     results: [],
     selected: [],
     columns: COLS.slice(),
@@ -99,18 +107,10 @@ let app = new Vue({
       <div class="field">
         <textarea class="textarea" rows="5" v-model="data" placeholder="List entities one per line"></textarea>
       </div>
-      <div class="field" v-bind:disabled="data.trim() === ''">
-        <label class="radio">
-          <input type="radio" name="answer" value="Place" v-model="type">
-          Places
-        </label>
-        <label class="radio">
-          <input type="radio" name="answer" value="Person" v-model="type">
-          People
-        </label>
-        <label class="radio">
-          <input type="radio" name="answer" value="CorporateBody" v-model="type">
-          Corporate Bodies
+      <div class="field" v-bind:disabled="data.trim() === ''">      
+        <label class="radio" v-for="key, value in types">
+          <input type="radio" name="answer" v-bind:value="key" v-model="type">
+          {{value}}
         </label>
       </div>
       <div class="field">
