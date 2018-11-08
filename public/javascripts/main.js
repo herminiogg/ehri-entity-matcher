@@ -1,7 +1,13 @@
 
 const HTTPS = window.location.host !== "localhost:9000"; // HACK!
 
-const COLS = ["id", "name", "country", "lat", "lng"];
+const COLS = {
+  id: "ID",
+  name: "Name",
+  country: "Country",
+  lat: "Latitude",
+  lng: "Longitude"
+}
 
 const TYPES = {
   Place: "Place",
@@ -10,17 +16,16 @@ const TYPES = {
   Term: "Term"
 }
 
-let app = new Vue({
-  el: '#app',
-  data: {
-    data: "",
-    type: "Place",
-    types: TYPES,
-    results: [],
-    selected: [],
-    columns: COLS.slice(),
-    loading: false,
-    progress: 0
+Vue.component("output-data", {
+  props: {
+    hasMatches: Boolean,
+    results: Array,
+    selected: Array
+  },
+  data: function() {
+    return {
+      columns: Object.keys(COLS)
+    }
   },
   computed: {
     csv: function() {
@@ -30,13 +35,13 @@ let app = new Vue({
         let values = [];
         if (matches.length > 0 && matches[this.selected[i]]) {
           let match = matches[this.selected[i]];
-          COLS.forEach(col => {
+          Object.keys(COLS).forEach(col => {
             if (this.columns.includes(col)) {
               values.push(match[col] ? match[col] : "");
             }
           });
         } else {
-          COLS.forEach(col => {
+          Object.keys(COLS).forEach(col => {
             if (this.columns.includes(col)) {
               values.push("");
             }
@@ -46,11 +51,55 @@ let app = new Vue({
       });
       return text;
     },
+  },
+  methods: {
+    copyCsv: function() {
+      let elem = document.getElementById("output-data");
+      elem.select();
+      document.execCommand("copy");
+    },
+    columnLabel: function(key) {
+      return COLS[key];
+    },
+    columnList: function() {
+      return Object.keys(COLS);
+    }
+  },
+  template: `
+    <div v-show="hasMatches">
+      <hr/>
+      <h2 class="subtitle is-3">Output Data</h2>
+      <div class="field">
+        Columns:
+        <label class="checkbox" v-for="key in columnList()">
+          <input type="checkbox" v-bind:value="key" v-model="columns">
+          <span>{{columnLabel(key)}}</span>
+          &nbsp;
+        </label> 
+      </div>
+      <textarea class="textarea" v-bind:rows="results.length" 
+          readonly id="output-data" v-on:click="copyCsv">{{csv}}</textarea>
+    </div>
+  `
+});
+
+new Vue({
+  el: '#app',
+  data: {
+    data: "",
+    type: "Place",
+    types: TYPES,
+    results: [],
+    selected: [],
+    loading: false,
+    progress: 0
+  },
+  computed: {
     entities: function() {
       return this.data.trim().split("\n").filter(e => e.trim() !== "");
     },
     hasMatches: function() {
-      return this.results.find(r => r[1].length > 0);
+      return this.results.filter(r => r[1].length > 0).length > 0;
     }
   },
   methods: {
@@ -96,11 +145,6 @@ let app = new Vue({
     isSelected: function(idx, ridx) {
       return this.selected[idx] === ridx;
     },
-    copyCsv: function() {
-      let elem = document.getElementById("output-data");
-      elem.select();
-      document.execCommand("copy");
-    }
   },
   template: `
     <div id="subject-matcher">
@@ -166,35 +210,10 @@ let app = new Vue({
         <span v-else>No Matches</span>
       </div>
       
-      <div v-show="hasMatches">
-        <hr/>
-        <h2 class="subtitle is-3">Output Data</h2>
-        <div class="field">
-          Columns:
-          <label class="checkbox">
-            <input type="checkbox" value="id" v-model="columns">
-            ID 
-          </label> 
-          <label class="checkbox">
-            <input type="checkbox" value="name" v-model="columns">
-            Name
-          </label> 
-          <label class="checkbox">
-            <input type="checkbox" value="country" v-model="columns">
-            Country
-          </label> 
-          <label class="checkbox">
-            <input type="checkbox" value="lat" v-model="columns">
-            Latitude
-          </label> 
-          <label class="checkbox">
-            <input type="checkbox" value="lng" v-model="columns">
-            Longitude       
-          </label> 
-        </div>
-        <textarea class="textarea" v-bind:rows="results.length" 
-            readonly id="output-data" v-on:click="copyCsv">{{csv}}</textarea>
-      </div>
+      <output-data 
+        v-bind:has-matches="hasMatches" 
+        v-bind:results="results" 
+        v-bind:selected="selected" />      
     </div>
   `
 });
