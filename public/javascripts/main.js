@@ -50,7 +50,13 @@ Vue.component("output-data", {
         }
         return values;
       });
-      return CSV.encode(data);
+      let sep = ",";
+      return data.map( arr => {
+        return arr.map(v => {
+          let enc = v.replace(/"/, "\"\"");
+          return enc.contains(sep) ? "\"" + enc + "\"" : enc;
+        }).join(sep)
+      }).join("\n");
     },
   },
   methods: {
