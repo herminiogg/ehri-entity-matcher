@@ -53,10 +53,10 @@ Vue.component("output-data", {
       let sep = ",";
       return data.map( arr => {
         return arr.map(v => {
-          let enc = v.replace(/"/, "\"\"");
-          return enc.contains(sep) ? "\"" + enc + "\"" : enc;
-        }).join(sep)
-      }).join("\n");
+          let enc = v.toString().replace(/"/g, "\"\"");
+          return enc.includes(sep) ? "\"" + enc + "\"" : enc;
+        }).join(sep) + "\n";
+      }).join("");
     },
   },
   methods: {
