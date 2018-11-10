@@ -2,19 +2,20 @@
 const HTTPS = window.location.host !== "localhost:9000"; // HACK!
 
 const COLS = {
+  input: "Input",
   id: "ID",
   name: "Name",
   country: "Country",
   lat: "Latitude",
   lng: "Longitude"
-}
+};
 
 const TYPES = {
   Place: "Place",
   Person: "People",
   CorporateBody: "Corporate Bodies",
   Term: "Term"
-}
+};
 
 Vue.component("output-data", {
   props: {
@@ -29,12 +30,12 @@ Vue.component("output-data", {
   },
   computed: {
     csv: function() {
-      let text = "";
-      this.results.forEach((r, i) => {
+      let data = this.results.map((r, i) => {
         let [input, matches] = r;
         let values = [];
         if (matches.length > 0 && matches[this.selected[i]]) {
           let match = matches[this.selected[i]];
+          match["input"] = input;
           Object.keys(COLS).forEach(col => {
             if (this.columns.includes(col)) {
               values.push(match[col] ? match[col] : "");
@@ -43,13 +44,13 @@ Vue.component("output-data", {
         } else {
           Object.keys(COLS).forEach(col => {
             if (this.columns.includes(col)) {
-              values.push("");
+              values.push(col === "input" ? input : "");
             }
           });
         }
-        text += values.join(",") + "\n";
+        return values;
       });
-      return text;
+      return CSV.encode(data);
     },
   },
   methods: {
