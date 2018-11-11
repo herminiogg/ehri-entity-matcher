@@ -60,6 +60,15 @@ Vue.component("output-data", {
     },
   },
   methods: {
+    downloadCsv: function(filename, text) {
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    },
     copyCsv: function() {
       let elem = document.getElementById("output-data");
       elem.select();
@@ -75,6 +84,12 @@ Vue.component("output-data", {
   template: `
     <div v-show="hasMatches">
       <hr/>
+      <button class="button is-pulled-right is-primary" v-on:click="downloadCsv('data.csv', csv)">        
+        <span class="icon is-small">
+          <i class="fa fa-download"></i>
+        </span>
+        <span>Download</span>
+      </button>
       <h2 class="subtitle is-3">Output Data</h2>
       <div class="field">
         Columns:
