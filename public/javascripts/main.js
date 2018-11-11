@@ -84,7 +84,7 @@ Vue.component("output-data", {
   template: `
     <div v-show="hasMatches">
       <hr/>
-      <button class="button is-pulled-right is-primary" v-on:click="downloadCsv('data.csv', csv)">        
+      <button class="button is-pulled-right is-info" v-on:click="downloadCsv('data.csv', csv)">        
         <span class="icon is-small">
           <i class="fa fa-download"></i>
         </span>
@@ -182,7 +182,12 @@ new Vue({
       <div class="field">
         <button class="button is-primary" 
             v-bind:disabled="data.trim() === ''" v-on:click="find"
-            v-bind:class="{'is-loading': loading}">Find Matches</button>
+            v-bind:class="{'is-loading': loading}">
+            <span class="icon is-small">
+              <i class="fa fa-search"></i>
+            </span>
+            <span>Find Matches</span>
+        </button>
       </div> 
       <hr/>
       <progress class="progress is-info" v-bind:value="progress" max="100"></progress>
