@@ -57,7 +57,7 @@ class HomeController @Inject()(
 
     logger.debug(s"Solr params: $params")
 
-    ws.url("http://localhost:8983/solr/geonames/select")
+    ws.url(config.get[String]("solr.url"))
       .withQueryStringParameters(params: _*)
       .get().map { r =>
       (r.json \ "response" \ "docs").as[Seq[Match]]
