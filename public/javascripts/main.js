@@ -89,7 +89,7 @@ Vue.component("output-data", {
   template: `
     <div v-show="hasMatches">
       <hr/>
-      <button class="button is-pulled-right is-info" v-on:click="downloadCsv('data.csv', csv)">        
+      <button class="button is-pulled-right is-info" v-on:click="downloadCsv('entity-matching-data.csv', csv)">        
         <span class="icon is-small">
           <i class="fa fa-download"></i>
         </span>
