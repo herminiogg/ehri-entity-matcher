@@ -84,6 +84,9 @@ Vue.component("output-data", {
     },
     columnList: function() {
       return Object.keys(COLS);
+    },
+    boxSize: function() {
+      return Math.min(20, this.results.length + (this.includeHeaders ? 1 : 0));
     }
   },
   template: `
@@ -110,7 +113,7 @@ Vue.component("output-data", {
           &nbsp;
         </label> 
       </div>
-      <textarea class="textarea" v-bind:rows="results.length" 
+      <textarea class="textarea" v-bind:rows="boxSize()" 
           readonly id="output-data" v-on:click="copyCsv">{{csv}}</textarea>
     </div>
   `
