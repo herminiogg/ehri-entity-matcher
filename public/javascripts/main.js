@@ -25,6 +25,7 @@ Vue.component("output-data", {
   },
   data: function() {
     return {
+      includeHeaders: true,
       columns: Object.keys(COLS)
     }
   },
@@ -50,6 +51,10 @@ Vue.component("output-data", {
         }
         return values;
       });
+      if (this.includeHeaders) {
+        data.unshift(Object.keys(COLS).filter(col => this.columns.includes(col)));
+      }
+
       let sep = ",";
       return data.map( arr => {
         return arr.map(v => {
@@ -92,7 +97,13 @@ Vue.component("output-data", {
       </button>
       <h2 class="subtitle is-3">Output Data</h2>
       <div class="field">
-        Columns:
+        <label class="checkbox">
+          <input type="checkbox" v-model="includeHeaders">
+          <span>Include Headers</span>
+          &nbsp;
+        </label> 
+      </div>
+      <div class="field">
         <label class="checkbox" v-for="key in columnList()">
           <input type="checkbox" v-bind:value="key" v-model="columns">
           <span>{{columnLabel(key)}}</span>
