@@ -6,11 +6,11 @@ import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Framing, Sink, Source}
 import akka.util.ByteString
-import com.typesafe.config.Config
+import com.fasterxml.jackson.dataformat.csv.{CsvMapper, CsvSchema}
 import javax.inject._
 import models.Match
 import play.api.Configuration
-import play.api.libs.json.{JsNull, JsString, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc.WebSocket.MessageFlowTransformer
@@ -79,8 +79,10 @@ class HomeController @Inject()(
     .filter(_.trim.nonEmpty)
     .mapAsync(1)(s => query(s, kind).map(results => s -> results))
 
+  private val schema = CsvSchema.emptySchema()
+  private val mapper = new CsvMapper().writer(schema)
 
-  def bodyParser(kind: Option[String]): BodyParser[Source[ByteString, _]] = BodyParser { _ =>
+  private def bodyParser(kind: Option[String]): BodyParser[Source[ByteString, _]] = BodyParser { _ =>
     // Chunk incoming bytes by newlines, truncating them if the lines
     // are longer than 1000 bytes...
     val f = Flow[ByteString]
@@ -89,7 +91,7 @@ class HomeController @Inject()(
       .via(transformFlow(kind))
       .flatMapConcat { case (s, results) => Source(results.map(r => s -> r).toList) }
       .map { case (s, r) =>
-        s"$s,${r.id},${r.name},${r.country},${r.lat},${r.lng},${r.fcl}\n"
+        mapper.writeValueAsBytes((s +: r.toCsv).toArray)
       }
       .map(s => ByteString(s))
 

@@ -17,7 +17,7 @@ from contextlib import contextmanager as _contextmanager
 
 # globals
 env.play_bin = 'sbt'
-env.project_name = 'matcher'
+env.project_name = 'emt'
 env.prod = False
 env.use_ssh_config = True
 env.path = '/opt/webapps/' + env.project_name
@@ -29,7 +29,7 @@ TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 # environments
 def test():
     "Use the remote testing server"
-    env.hosts = ['ehri-wp14-01']
+    env.hosts = ['ehri-portal-01']
 
 def deploy():
     """
