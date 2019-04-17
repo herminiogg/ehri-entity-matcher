@@ -27,9 +27,9 @@ env.java_version = 8
 TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 
 # environments
-def test():
+def prod():
     "Use the remote testing server"
-    env.hosts = ['ehri-portal-01']
+    env.hosts = ['ep1']
 
 def deploy():
     """

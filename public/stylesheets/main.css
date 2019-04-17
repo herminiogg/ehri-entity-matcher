@@ -11,7 +11,16 @@ body {
 }
 
 #primary-nav {
+    background-color: #360f4f;
+}
 
+#primary-nav #navbar-logo {
+    max-height: initial;
+}
+
+#primary-nav .title {
+    text-transform: uppercase;
+    font-size: 1.1em;
 }
 
 #content {
@@ -69,6 +78,7 @@ body {
 
 #output-data {
     font-family: monospace;
+    font-size: 0.8em;
 }
 
 #output-data:hover {

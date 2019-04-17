@@ -17,6 +17,8 @@
     <body class="layout-default">
         <nav id="primary-nav" class="navbar has-shadow is-dark" role="navigation" aria-label="main navigation">
             <div class="navbar-brand">
+                <a class="navbar-item" href="@controllers.routes.HomeController.index()">
+                    <img id="navbar-logo" src="@routes.Assets.versioned("images/ehri-logo-trans-xs.png")" alt="@title"></a>
                 <a class="navbar-item title" href="@controllers.routes.HomeController.index()">@title</a>
             </div>
         </nav>

@@ -6,3 +6,5 @@ of entities (places, people, corporate bodies) and lets the user refine and expo
 structured (CSV) data.
 
 TODO: detail ingest of data and database (Solr) schema.
+
+![Screenshot](screen.png)
