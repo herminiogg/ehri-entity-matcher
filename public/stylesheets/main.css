@@ -51,6 +51,14 @@ body {
     overflow: auto;
 }
 
+.match-option {
+    margin-right: 1rem;
+}
+
+.match-option:last-child {
+    margin-right: 0;
+}
+
 #output {
 
 }

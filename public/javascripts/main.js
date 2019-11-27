@@ -1,4 +1,4 @@
-const HTTPS = window.location.host !== "localhost:9000"; // HACK!
+const HTTPS = !window.location.host.startsWith("localhost");
 
 const COLS = {
   input: "Input",
@@ -13,7 +13,8 @@ const TYPES = {
   Place: "Place",
   Person: "People",
   CorporateBody: "Corporate Bodies",
-  Term: "Term"
+  Term: "Term",
+  Repository: "Archival Institution"
 };
 
 Vue.component("output-data", {
@@ -181,6 +182,20 @@ new Vue({
   el: '#app',
   data: {
     data: "",
+    options: {
+      phonetic: {
+        name: "Phonetic Matches",
+        value: false,
+      },
+    },
+    tOptions: {
+      Place: {
+        population: {
+          name: "Boost higher population places",
+          value: false,
+        }
+      }
+    },
     type: "Place",
     types: TYPES,
     results: [],
@@ -189,6 +204,15 @@ new Vue({
     progress: 0
   },
   computed: {
+    typeOptions: function() {
+      return this.tOptions[this.type] || {};
+    },
+    allOptions: function() {
+      let all = {...this.options, ...this.typeOptions};
+      return Object.keys(all).map ((k, index) => {
+        return all[k].value;
+      });
+    },
     entities: function () {
       return this.data.trim().split("\n").filter(e => e.trim() !== "");
     },
@@ -211,7 +235,7 @@ new Vue({
   methods: {
     find: function () {
       this.loading = true;
-      let socketUrl = jsRoutes.controllers.HomeController.findWS(this.type).webSocketURL(HTTPS);
+      let socketUrl = jsRoutes.controllers.HomeController.findWS(this.type, ...this.allOptions).webSocketURL(HTTPS);
       let socket = new WebSocket(socketUrl);
       this.results = [];
       this.selected = [];
@@ -274,6 +298,20 @@ new Vue({
                 <input type="radio" name="answer" v-bind:value="key" v-model="type">
                 {{value}}
               </label>
+            </span>            
+          </div>
+          <div id="options">
+            <span v-for="(data, option) in options" class="match-option">
+              <label class="check-box">
+                <input type="checkbox" name="option" v-model="options[option].value">
+                {{data.name}}
+              </label>
+            </span>
+            <span v-for="(data, option) in typeOptions" class="match-option">
+              <label class="check-box">
+                <input type="checkbox" name="option" v-model="typeOptions[option].value">
+                {{data.name}}
+              </label>
             </span>
           </div>
         </div>
@@ -281,7 +319,7 @@ new Vue({
         <div id="all-match-results" v-if="results.length">
           <div class="match-results" v-for="([input, matches], idx) in results">
             <h3 class="title is-4">Input: &quot;{{input}}&quot;</h3>
-            <table class="table is-fullwidth is-bordered is-hoverable" v-if="matches.length > 0" id="results">
+            <table class="table is-fullwidth is-narrow is-bordered is-hoverable" v-if="matches.length > 0" id="results">
               <thead>
                 <tr>
                     <th>ID</th>
