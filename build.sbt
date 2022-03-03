@@ -1,17 +1,17 @@
-name := """emt"""
-organization := "eu.ehri.project"
+name := "emt"
+organization := "eu.ehri_project"
 
 version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.13.8"
 
 libraryDependencies += guice
 libraryDependencies += ws
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.10"
-libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.8.8"
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.8.2"
+libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.11.4"
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "eu.ehri.project.controllers._"
