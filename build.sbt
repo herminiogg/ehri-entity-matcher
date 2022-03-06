@@ -3,7 +3,8 @@ organization := "eu.ehri_project"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala, SbtWeb, LauncherJarPlugin)
 
 scalaVersion := "2.13.8"
 
@@ -20,3 +21,6 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0
 // play.sbt.routes.RoutesKeys.routesImport += "eu.ehri.project.binders._"
 
 pipelineStages := Seq(digest)
+
+// Dist options
+topLevelDirectory := None
