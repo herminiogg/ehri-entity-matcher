@@ -1,8 +1,12 @@
 #!/bin/bash
 
-file=$1
+GEONAMES_SRC="https://download.geonames.org/export/dump/allCountries.zip"
+EHRI_SRC="https://portal.ehri-project.eu/api/datasets/nmfUu4u9Hr?format=json"
 
-core='emt'
+CORE=${CORE:=emt}
+PORT=${PORT:=8984}
+JSONTOOL="$(dirname $0)/jsonmunge"
+GEONAMES_LOC="/var/tmp/allCountries.zip"
 
 separator='separator=%09'
 encapsulator='&encapsulator=%00' # %00 disables encapsulation. Default is '"'
@@ -15,11 +19,9 @@ fieldnames="${fieldnames},fcl,fcode,countryCode"
 fieldnames="${fieldnames},cc2,adm1,adm2,adm3,adm4"
 fieldnames="${fieldnames},population,elevation,dem,timezone"
 fieldnames="${fieldnames},date_modified"
-#fieldnames="${fieldnames},ancestors,hcode"
 
 multivalued="&f.alternateNames.split=true&f.alternateNames.separator=%2C" # comma (,)
 multivalued="$multivalued&f.cc2.split=true&f.cc2.separator=%2C" # comma (,)
-#multivalued="$multivalued&f.ancestors.split=true&f.ancestors.separator=%2C" # comma (,)
 
 literal="&literal.type=Place"
 skip="&skip=date_modified"
@@ -28,4 +30,8 @@ wt='&wt=json'
 
 params="${separator}${encapsulator}${header}${fieldnames}${multivalued}${literal}${skip}${wt}"
 
-curl -X POST "localhost:8984/solr/${core}/update?${params}&commit=true" -H 'Content-Type:application/csv' --upload-file -
+curl -o $GEONAMES_LOC -z $GEONAMES_LOC $GEONAMES_SRC
+unzip -p $GEONAMES_LOC | curl -XPOST "localhost:$PORT/solr/$CORE/update?${params}&commit=true" -H 'Content-Type:application/csv' --upload-file -
+
+# Now ingest the EHRI data
+curl $EHRI_SRC | $JSONTOOL | curl -XPOST "localhost:$PORT/solr/$CORE/update?commit=true" -H 'Content-Type:application/json' --data-binary @-

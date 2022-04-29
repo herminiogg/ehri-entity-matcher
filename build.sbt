@@ -1,3 +1,5 @@
+import com.typesafe.sbt.packager.MappingsHelper.directory
+
 name := "emt"
 organization := "eu.ehri_project"
 
@@ -24,3 +26,5 @@ pipelineStages := Seq(digest)
 
 // Dist options
 topLevelDirectory := None
+
+mappings in Universal ++= directory("bin")
