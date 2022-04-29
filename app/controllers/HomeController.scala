@@ -43,6 +43,13 @@ class HomeController @Inject()(
 
   private def solrSettings: Seq[(String, String)] = configSettings("solr.global")
 
+  private def solrUrl: String = {
+    val host = config.get[String]("solr.host")
+    val port = config.get[String]("solr.port")
+    val core = config.get[String]("solr.core")
+    s"http://$host:$port/solr/$core/select"
+  }
+
   private def typeSettings(kind: Option[String]): Seq[(String, String)] =
     kind.map(s => configSettings(s"solr.$s")).getOrElse(Seq.empty[(String, String)])
 
@@ -57,7 +64,7 @@ class HomeController @Inject()(
 
     logger.debug(s"Solr params: $params")
 
-    ws.url(config.get[String]("solr.url"))
+    ws.url(solrUrl)
       .withQueryStringParameters(params: _*)
       .get().map { r =>
       (r.json \ "response" \ "docs").as[Seq[Match]]
