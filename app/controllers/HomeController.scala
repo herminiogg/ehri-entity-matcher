@@ -1,21 +1,20 @@
 package controllers
 
-import java.util.Locale
-
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Framing, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.dataformat.csv.{CsvMapper, CsvSchema}
-import javax.inject._
 import models.Match
 import play.api.Configuration
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 
+import java.util.Locale
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton

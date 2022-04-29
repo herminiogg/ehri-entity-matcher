@@ -17,6 +17,27 @@ const TYPES = {
   Repository: "Archival Institution"
 };
 
+Vue.component("docs", {
+  template: `
+    <div class="docs message">
+    <div class="message-body">
+        <p class="block">This is a tool for translating a list of textual references to controlled vocabulary items,
+            using fuzzy matching where appropriate. For example, if you have a list place names you
+            want to put on a map, the tool will search the Geonames database for each reference, 
+            present the most appropriate options, and allow you to copy the result as CSV containing 
+            the Geonames IDs, latitude and longitude in a tabular format that can be imported into a 
+            spreadsheet or other system.           
+        </p>
+        <p class="block">
+            While places were the original use-case, the tool also supports other entities in the
+            <a href="https://portal.ehri-project.eu/">EHRI portal</a> database.
+        </p>
+    
+</div>
+    </div>
+  `
+});
+
 Vue.component("output-data", {
   props: {
     hasMatches: Boolean,
@@ -364,14 +385,15 @@ new Vue({
         </div>  
         
       </div>
-      <div id="sidebar">
-        <result-map v-if="showMap" 
+      <article id="sidebar">
+        <result-map v-if="showMap && hasMatches" 
           v-bind:has-matches="hasMatches" 
           v-bind:selection="selection" />      
+        <docs v-else />
         <output-data 
           v-bind:has-matches="hasMatches" 
           v-bind:selection="selection" />      
-      </div>
+      </article>
     </div>
   `
 });
