@@ -10,8 +10,12 @@ body {
     overflow-y: hidden;
 }
 
+a {
+    color: var(--secondary);
+}
+
 #primary-nav {
-    background-color: #360f4f;
+    background-color: var(--secondary);
 }
 
 #primary-nav #navbar-logo {
@@ -102,3 +106,17 @@ body {
     height: 300px;
 }
 
+footer {
+    background-color: var(--light);
+    padding: .5rem 1.5rem;
+    font-size: 0.9em;
+}
+
+footer .fork-me {
+    float: right;
+}
+
+:root {
+    --light: #ecedee;
+    --secondary: #2b3a60;
+}

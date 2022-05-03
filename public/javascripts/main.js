@@ -25,7 +25,7 @@ Vue.component("docs", {
             using fuzzy matching where appropriate. For example, if you have a list place names you
             want to put on a map, the tool will search the Geonames database for each reference, 
             present the most appropriate options, and allow you to copy the result as CSV containing 
-            the Geonames IDs, latitude and longitude in a tabular format that can be imported into a 
+            the <a href="https://www.geonames.org">Geonames</a> IDs, latitude and longitude in a tabular format that can be imported into a 
             spreadsheet or other system.           
         </p>
         <p class="block">
@@ -302,7 +302,7 @@ new Vue({
       <div id="main-content" v-bind:class="showMap ? 'is-two-thirds' : 'is-full'">
         <div id="controls">
           <div class="field">
-            <textarea class="textarea" rows="5" v-model="data" placeholder="List entities one per line"></textarea>
+            <textarea class="textarea" rows="5" v-model="data" placeholder="Paste references here, one item per line..."></textarea>
           </div>
           <progress class="progress is-info" v-bind:value="progress" max="100"></progress>
           <div class="field" v-bind:disabled="data.trim() === ''">      
