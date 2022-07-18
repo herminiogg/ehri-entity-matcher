@@ -14,7 +14,9 @@ const COLS_TSV = {
 };
 
 const EHRI_VOCABULARIES = {
-  ehri_terms: "http://data.ehri-project.eu/vocabularies/ehri-terms/"
+  ehri_terms: "http://data.ehri-project.eu/vocabularies/ehri-terms/",
+  ehri_ghettos: "http://data.ehri-project.eu/vocabularies/ehri-ghettos/",
+  ehri_camps: "http://data.ehri-project.eu/vocabularies/ehri-camps/"
 };
 
 Vue.component("docs", {
@@ -22,17 +24,12 @@ Vue.component("docs", {
     <div class="docs message">
     <div class="message-body">
         <p class="block">This is a tool for translating a list of textual references to controlled vocabulary items,
-            using fuzzy matching where appropriate. For example, if you have a list place names you
-            want to put on a map, the tool will search the Geonames database for each reference, 
-            present the most appropriate options, and allow you to copy the result as CSV containing 
-            the <a href="https://www.geonames.org">Geonames</a> IDs, latitude and longitude in a tabular format that can be imported into a 
-            spreadsheet or other system.           
+            using different string similarity algorithms. The tool allow you to parametrise these algorithms to reach the
+            better results for your use case. Then, the selected results can be exported to CSV or TSV, which in case of
+            the TSV export it can be directly uploaded to the EHRI portal to build a coreference table.
         </p>
-        <p class="block">
-            While places were the original use-case, the tool also supports other entities in the
-            <a href="https://portal.ehri-project.eu/">EHRI portal</a> database.
+        <p class="block">Happy experimentation!
         </p>
-    
 </div>
     </div>
   `
@@ -216,7 +213,8 @@ new Vue({
     vocabularies: "",
     algorithm: "Levenshtein",
     threshold: 5.0,
-    type: "Distance",
+    caseSensitive: false,
+    type: "distance",
     results: [],
     selected: [],
     loading: false,
@@ -240,12 +238,16 @@ new Vue({
         });
         return [input, matching];
       });
+    },
+    isDistanceAlgorithmSelected: function () {
+      return this.type === "distance" ;
     }
   },
   methods: {
     find: function () {
       this.loading = true;
-      let socketUrl = jsRoutes.controllers.HomeController.findWS(this.vocabularies, this.algorithm, this.threshold).webSocketURL(HTTPS);
+      let isScore = this.type === "score";
+      let socketUrl = jsRoutes.controllers.HomeController.findWS(this.vocabularies, isScore, this.algorithm, this.threshold, this.caseSensitive).webSocketURL(HTTPS);
       let socket = new WebSocket(socketUrl);
       this.results = [];
       this.selected = [];
@@ -292,6 +294,15 @@ new Vue({
         .some(([i, v]) => i === input && v === ridx);
     },
   },
+  watch: {
+    type: function(newValue) {
+      if(newValue === "score") {
+        this.threshold = 0.5;
+      } else {
+        this.threshold = 5;
+      }
+    }
+  },
   template: `
     <div id="subject-matcher">
       <div id="main-content" class="is-full">
@@ -304,13 +315,31 @@ new Vue({
           </div>
           <progress class="progress is-info" v-bind:value="progress" max="100"></progress>
           <div class="field">
-            <label for="algorithm">Choose an algorithm:</label>
-            <select name="algorithm" id="algorithm">
+            <input type="radio" id="algorithmTypeDistance" value="distance" v-model="type" />
+            <label for="algorithmTypeDistance">Distance</label>
+            <input type="radio" id="algorithmTypeScore" value="score" v-model="type" />
+            <label for="algorithmTypeScore">Score</label>
+            <label for="algorithm"> - Choose an algorithm:</label>
+            <select v-model="algorithm" v-if="isDistanceAlgorithmSelected">
               <option value="Levenshtein">Levenshtein</option>
               <option value="Damerau-Levenshtein">Damerau-Levenshtein</option>
               <option value="Hamming">Hamming</option>
               <option value="LongestCommonSubsequence">LongestCommonSubsequence</option>
             </select>
+            <select name="algorithm" v-else>
+              <option value="Cosine">Cosine</option>
+              <option value="Damerau-Levenshtein">Damerau-Levenshtein</option>
+              <option value="Dice">Dice</option>
+              <option value="Hamming">Hamming</option>
+              <option value="Jaro">Jaro</option>
+              <option value="Levenshtein">Levenshtein</option>
+              <option value="Metaphone">Metaphone</option>
+              <option value="Soundex">Soundex</option>
+            </select>
+            <label for="thresholdInput"> - Threshold:</label>
+            <input id="thresholdInput" v-model.number="threshold" /> -
+            <input type="checkbox" id="caseSentitiveOption" v-model="caseSensitive" />
+            <label for="checkbox">Case Sensitive</label>
           </div>
           <div class="field" v-bind:disabled="data.trim() === '' || vocabularies.trim() === ''">
             <button class="button is-primary" 

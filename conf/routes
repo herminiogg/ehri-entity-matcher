@@ -1,8 +1,8 @@
 GET     /                           controllers.HomeController.index()
-GET     /find                       controllers.HomeController.find(text: String, vocabularies: String ?= "", algorithm: String ?= "Levenshtein", threshold: Double ?= 5)
-POST    /find                       controllers.HomeController.findPost(vocabularies: String ?= "", algorithm: String ?= "Levenshtein", threshold: Double ?= 5)
-GET     /findWS                     controllers.HomeController.findWS(vocabularies: String ?= "", algorithm: String ?= "Levenshtein", threshold: Double ?= 5)
-POST    /findJSON                   controllers.HomeController.findJson(vocabularies: String ?= "", algorithm: String ?= "Levenshtein", threshold: Double ?= 5)
+GET     /find                       controllers.HomeController.find(text: String, vocabularies: String ?= "", isScore: Boolean ?= false, algorithm: String ?= "Levenshtein", threshold: Double ?= 5, caseSensitive: Boolean ?= false)
+POST    /find                       controllers.HomeController.findPost(vocabularies: String ?= "", isScore: Boolean ?= false, algorithm: String ?= "Levenshtein", threshold: Double ?= 5, caseSensitive: Boolean ?= false)
+GET     /findWS                     controllers.HomeController.findWS(vocabularies: String ?= "", isScore: Boolean ?= false, algorithm: String ?= "Levenshtein", threshold: Double ?= 5, caseSensitive: Boolean ?= false)
+POST    /findJSON                   controllers.HomeController.findJson(vocabularies: String ?= "", isScore: Boolean ?= false, algorithm: String ?= "Levenshtein", threshold: Double ?= 5, caseSensitive: Boolean ?= false)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
