@@ -1,10 +1,11 @@
 package controllers
 
-import akka.NotUsed
+import akka.{NotUsed, japi}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Framing, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.dataformat.csv.{CsvMapper, CsvSchema}
+import com.herminiogarcia.label2thesaurus.reconciliation.Reconciler
 import models.Match
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
@@ -13,6 +14,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 
+import java.net.URL
 import java.util.Locale
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
@@ -53,22 +55,16 @@ class HomeController @Inject()(
   private def typeSettings(kind: Option[String]): Seq[(String, String)] =
     kind.map(s => configSettings(s"solr.$s")).getOrElse(Seq.empty[(String, String)])
 
-  def query(text: String, kind: Option[String], phone: Boolean, pop: Boolean): Future[Seq[Match]] = {
-    val popBoost: Seq[(String, String)] = if(pop) Seq("bf" -> "population") else Seq.empty[(String,String)]
-    val params: Seq[(String,String)] = Seq(
-      "qf" -> ("name_exact^5.0 name^1.0 alternateNames" + (if(phone) " name_phone^0.5" else "")),
-      "pf" -> "name^50 alternateNames^20",
-      "defType" -> "edismax",
-      "q" -> text
-    ) ++ kind.map(k => "fq" -> s"type:$k").toSeq ++ typeSettings(kind) ++ solrSettings ++ popBoost
-
-    logger.debug(s"Solr params: $params")
-
-    ws.url(solrUrl)
-      .withQueryStringParameters(params: _*)
-      .get().map { r =>
-      (r.json \ "response" \ "docs").as[Seq[Match]]
-        .map(m => m.copy(country = m.countryCode.map(country)))
+  def query(text: String, vocabularies: String, algorithm: String, threshold: Double): Future[Seq[Match]] = {
+    val listVocabs = vocabularies.split("/n").map(v => new URL(v.trim)).toList
+    Future {
+      new Reconciler(threshold, false, Option(algorithm), false).reconcile(
+        List(text),
+        listVocabs,
+        scala.Option.empty
+      ).map(r => {
+        new Match(r.label, r.termLabel, r.lang, r.term, r.confidence)
+      })
     }
   }
 
@@ -76,26 +72,26 @@ class HomeController @Inject()(
     Ok(views.html.index())
   }
 
-  def find(text: String, kind: Option[String], phone: Boolean, pop: Boolean): Action[AnyContent] = Action.async { implicit request =>
-    query(text, kind, phone, pop).map { docs =>
+  def find(text: String, vocabularies: String, algorithm: String, threshold: Double): Action[AnyContent] = Action.async { implicit request =>
+    query(text, vocabularies, algorithm, threshold).map { docs =>
       Ok(Json.toJson(docs))
     }
   }
 
-  private def transformFlow(kind: Option[String], phone: Boolean, pop: Boolean): Flow[String, (String, Seq[Match]), NotUsed] = Flow[String]
+  private def transformFlow(vocabularies: String, algorithm: String, threshold: Double): Flow[String, (String, Seq[Match]), NotUsed] = Flow[String]
     .filter(_.trim.nonEmpty)
-    .mapAsync(1)(s => query(s, kind, phone, pop).map(results => s -> results))
+    .mapAsync(1)(s => query(s, vocabularies, algorithm, threshold).map(results => s -> results))
 
   private val schema = CsvSchema.emptySchema()
   private val mapper = new CsvMapper().writer(schema)
 
-  private def bodyParser(kind: Option[String], phone: Boolean, pop: Boolean): BodyParser[Source[ByteString, _]] = BodyParser { _ =>
+  private def bodyParser(vocabularies: String, algorithm: String, threshold: Double): BodyParser[Source[ByteString, _]] = BodyParser { _ =>
     // Chunk incoming bytes by newlines, truncating them if the lines
     // are longer than 1000 bytes...
     val f = Flow[ByteString]
       .via(Framing.delimiter(ByteString("\n"), 1000, allowTruncation = true))
       .map(bs => bs.utf8String)
-      .via(transformFlow(kind, phone, pop))
+      .via(transformFlow(vocabularies, algorithm, threshold))
       .flatMapConcat { case (s, results) => Source(results.map(r => s -> r).toList) }
       .map { case (s, r) =>
         mapper.writeValueAsBytes((s +: r.toCsv).toArray)
@@ -107,14 +103,14 @@ class HomeController @Inject()(
     .map(Right.apply)
   }
 
-  def findPost(kind: Option[String], phone: Boolean, pop: Boolean): Action[Source[ByteString, _]] =
-    Action(bodyParser(kind, phone, pop)) { implicit request =>
+  def findPost(vocabularies: String, algorithm: String, threshold: Double): Action[Source[ByteString, _]] =
+    Action(bodyParser(vocabularies, algorithm, threshold)) { implicit request =>
       Ok.chunked(request.body).as("text/csv")
     }
 
-  def findWS(kind: Option[String], phone: Boolean, pop: Boolean): WebSocket = WebSocket.accept[String, String] { request =>
+  def findWS(vocabularies: String, algorithm: String, threshold: Double): WebSocket = WebSocket.accept[String, String] { request =>
     Flow[String].flatMapConcat(s => Source(s.split("\n").toList))
-      .via(transformFlow(kind, phone, pop))
+      .via(transformFlow(vocabularies, algorithm, threshold))
       .map { case (s, m) =>
         Json.stringify(Json.toJson(s -> m))
       }.concat(Source.maybe)
@@ -125,9 +121,9 @@ class HomeController @Inject()(
     implicit val format = Json.format[JsonBody]
   }
 
-  def findJson(kind: Option[String], phone: Boolean, pop: Boolean): Action[JsonBody] = Action(parse.json[JsonBody]).async { implicit request =>
+  def findJson(vocabularies: String, algorithm: String, threshold: Double): Action[JsonBody] = Action(parse.json[JsonBody]).async { implicit request =>
     val out: Future[Seq[(String, Seq[Match])]] = Source(request.body.text.split("\n").toList)
-      .via(transformFlow(kind, phone, pop))
+      .via(transformFlow(vocabularies, algorithm, threshold))
       .runWith(Sink.seq)
     out.map { data =>
       Ok(Json.toJson(data))

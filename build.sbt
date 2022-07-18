@@ -15,6 +15,7 @@ libraryDependencies += ws
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.8.2"
 libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.11.4"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
+libraryDependencies += "com.herminiogarcia" %% "label2thesaurus" % "0.1.0"
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "eu.ehri.project.controllers._"
