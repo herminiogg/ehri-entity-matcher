@@ -90,11 +90,12 @@ Vue.component("output-data", {
          if (match) {
            this.tsvColumns.forEach(col => {
              if (col === "term") {
-               let [key, value] = this.ehriVocabularies.find(function(i) {
+               let foundVocabulary = this.ehriVocabularies.find(function(i) {
                  let [key, value] = i;
                  return match[col].startsWith(value);
                });
-               if(key !== undefined && value !== undefined) {
+               if(foundVocabulary !== null && foundVocabulary !== undefined) {
+                 let [key, value] = foundVocabulary;
                  values.push(match[col].replace(value, key + "-"));
                  values.push(key);
                } else {
