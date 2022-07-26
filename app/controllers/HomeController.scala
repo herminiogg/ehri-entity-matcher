@@ -56,7 +56,7 @@ class HomeController @Inject()(
     kind.map(s => configSettings(s"solr.$s")).getOrElse(Seq.empty[(String, String)])
 
   def query(text: String, vocabularies: String, isScore: Boolean, algorithm: String, threshold: Double, caseSensitive: Boolean): Future[Seq[Match]] = {
-    val listVocabs = vocabularies.split("/n").map(v => new URL(v.trim)).toList
+    val listVocabs = vocabularies.split("\\r?\\n").map(v => new URL(v.trim)).toList
     Future {
       new Reconciler(threshold, caseSensitive, Option(algorithm), isScore).reconcile(
         List(text),
