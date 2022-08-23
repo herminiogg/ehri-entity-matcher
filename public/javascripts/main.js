@@ -328,7 +328,7 @@ new Vue({
               <option value="Hamming">Hamming</option>
               <option value="LongestCommonSubsequence">LongestCommonSubsequence</option>
             </select>
-            <select name="algorithm" v-else>
+            <select v-model="algorithm" v-else>
               <option value="Cosine">Cosine</option>
               <option value="Damerau-Levenshtein">Damerau-Levenshtein</option>
               <option value="Dice">Dice</option>
