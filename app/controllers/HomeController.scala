@@ -72,6 +72,10 @@ class HomeController @Inject()(
     Ok(views.html.index())
   }
 
+  def help(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
+    Ok(views.html.help())
+  }
+
   def find(text: String, vocabularies: String, isScore: Boolean, algorithm: String, threshold: Double, caseSensitive: Boolean): Action[AnyContent] = Action.async { implicit request =>
     query(text, vocabularies, isScore, algorithm, threshold, caseSensitive).map { docs =>
       Ok(Json.toJson(docs))

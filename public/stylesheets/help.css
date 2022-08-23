@@ -1,0 +1,27 @@
+body {
+  overflow-y: auto !important;
+}
+
+.navbar {
+  min-height: auto !important;
+}
+
+#help div h2 {
+  display: block;
+  font-size: 1.5em;
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
+  margin-left: 0;
+  margin-right: 0;
+  font-weight: bold;
+}
+
+#help div ul {
+  display: block;
+  list-style-type: disc;
+  padding-left: 40px;
+}
+
+#help div li {
+  display: list-item;
+}

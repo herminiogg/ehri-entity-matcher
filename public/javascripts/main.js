@@ -25,9 +25,10 @@ Vue.component("docs", {
     <div class="message-body">
         <p class="block">This is a tool for translating a list of textual references to controlled vocabulary items,
             using different string similarity algorithms. The tool allow you to parametrise these algorithms to reach the
-            better results for your use case. Then, the selected results can be exported to CSV or TSV, which in case of
+            best results for your use case. Then, the selected results can be exported to CSV or TSV, which in case of
             the TSV export it can be directly uploaded to the EHRI portal to build a coreference table.
         </p>
+        <p class="block"><a href="/help">Read more...</a></p>
         <p class="block">Happy experimentation!
         </p>
 </div>
@@ -374,14 +375,15 @@ new Vue({
                 </tr>
               </thead>
               <tbody v-if="matches.length > 0">
-                <tr v-for="(result, ridx) in matches" v-on:click="selectResult(input, ridx)">
+                <tr v-for="(result, ridx) in matches">
                    <td>{{result.label}}</td>
                    <td>{{result.termLabel}}</td>
                    <td>{{result.language}}</td>
-                   <td>{{result.term}}</td>
+                   <td><a target="_blank" v-bind:href="result.term">{{result.term}}</a></td>
                    <td>{{result.confidence}}</td>
                    <td>
-                    <a class="button" v-bind:class="{'is-success': isSelected(input, ridx)}">
+                    <a class="button" v-on:click="selectResult(input, ridx)"
+                      v-bind:class="{'is-success': isSelected(input, ridx)}">
                         <span class="icon is-small">
                             <i class="fa fa-check"></i>
                         </span>
