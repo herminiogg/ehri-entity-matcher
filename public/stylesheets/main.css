@@ -67,6 +67,10 @@ a {
 
 }
 
+#output-tsv {
+    padding-top: 1rem;
+}
+
 #sidebar {
     flex-shrink: 0;
     margin-left: 2rem;
@@ -88,12 +92,12 @@ a {
     margin-bottom: 1rem;
 }
 
-#output-data {
+#output-data, #output-data-tsv {
     font-family: monospace;
     font-size: 0.8em;
 }
 
-#output-data:hover {
+#output-data:hover, #output-data-tsv:hover {
     border: 1px solid red;
     cursor: copy;
 }

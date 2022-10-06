@@ -1,0 +1,96 @@
+@()(implicit request: RequestHeader)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Help for EHRI Matching Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+  <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.3.4/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin=""/>
+  <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/help.css")">
+</head>
+<body class="layout-default">
+<nav id="primary-nav" class="navbar has-shadow is-dark" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="@controllers.routes.HomeController.index()">
+      <img id="navbar-logo" width="150" height="auto" src="@routes.Assets.versioned("images/ehri-logo-trans-small.png")" alt="Help for EHRI Matching Tool"></a>
+    <a class="navbar-item title" href="@controllers.routes.HomeController.index()">Help for EHRI Matching Tool</a>
+  </div>
+</nav>
+
+<section id="content" class="section">
+  <div id="help">
+    <div id="left-panel-help">
+      <p class="block">Welcome to the EHRI entity matching tool which allows linking keyword occurrences to controlled vocabularies terms,
+        for example, to EHRI vocabularies. This tool is based on string similarity metrics and algorithms to deliver the user
+        with a list of arguments that can support the matching decision. The final goal of this tool is to support a semi-automatic
+        matching process by involving humans in the loop to foster high accuracy of the obtained results. In order to achieve
+        this goal, the tool offers an easy-to-use interface that could be approached by non-experts users without involving a high level
+        learning curve.
+      </p>
+      <p class="block">
+        The interface is divided in two sections: the left section offers two inputs areas, the first one for the labels to be reconciled, and
+        the second one to introduce all the SKOS vocabularies against which the labels should be reconciled. Then, the row on top
+        of the "Find Matches" button offers the possibility to select between different distance and score algorithms (explained below), between
+        using case-sensitive results or not, and the inclusion of a threshold to limit the outputted results. Once the algorithm is executed
+        the results are shown in the bottom part including the following data: label (used by the user), matching term label in the vocabulary,
+        language of the matched term label, unique URI for the term, and confidence on the accuracy of the result. Then, the user can select
+        the matches that according to his/her expertise are accurate.
+        The right section offers two export possibilities: a generic CSV export that returns the results selected by the user containing
+        the same information shown in the results table, and a TSV export containing a coreference table that can be directly uploaded to
+        the EHRI portal to automatically link the introduced labels with the matched terms in the EHRI vocabularies.
+      </p>
+      <h2>Threshold</h2>
+      <p class="block">
+        In order to avoid very long outputs that would be impossible to be supervised by a human, this library offers the possibility to configure a threshold. This threshold operates using a different criteria depending on the used algorithm due to the different meaning of the outputs.
+      </p>
+      <p class="block">
+        For distance calculation (excluding LongestCommonSubsequence) the threshold mean the maximum value that a distance result should have in order to be returned to the user. In addition, the confidence percentage is calculated as: (threshold - distance) / threshold. In the case of the LongestCommonSubsequence the distance meaning is the inverse as a higher value means greater similarity. Therefore, for this algorithm the threshold is the minimum value that a result should return in order to be included and the confidence percentage is calculated as: (distance - minThreshold) / distance.
+      </p>
+      <p class="block">
+        Score algorithms already give a percentage of confidence so this is taken directly from the algorithm. So, for these algorithms the threshold only acts as a value to filter out the values that are under the given limit. Take into account that Phonetic similarity algorithms (Metaphone and Soundex) only return true or false, so for these two algorithms the output will be 100% or 0%, with the threshold acting in the same behaviour as described for the rest of the score ones.
+      </p>
+      <h2>Available algorithms</h2>
+      <ul>
+        <li>Distance
+          <ul>
+            <li>Levenshtein: Edit distance between two strings (insertions, deletions and substitutions). <a target="_blank" href="https://en.wikipedia.org/wiki/Levenshtein_distance">See more</a>.</li>
+            <li>Damerau-Levenshtein: Edit distance between two strings (insertions, deletions, substitutions and transpositions). <a target="_blank" href="https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance">See more</a>.</li>
+            <li>Hamming: Measures the number of positions in which the characters are different on two binary data string of the same length. <a target="_blank" href="https://en.wikipedia.org/wiki/Hamming_distance">See more</a>.</li>
+            <li>LongestCommonSubsequence: Finds the longest subsequence in common between two sentences not taking into account the order of them in the sentence. <a target="_blank" href="https://en.wikipedia.org/wiki/Longest_common_subsequence_problem">See more</a>.</li>
+          </ul>
+        </li>
+        <li>Score
+          <ul>
+            <li>Cosine: Calculates the similarity between two strings based on their representation as vectors in an inner product space. <a target="_blank" href="https://en.wikipedia.org/wiki/Cosine_similarity">See more</a>.</li>
+            <li>Damerau-Levenshtein: Percentage relating the Damerau-Levenshtein distance metric to the maximum distance possible.</li>
+            <li>Dice: Statistical tool to measure the similarity between two sets of data based on n-grams that are similar. <a target="_blank" href="https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient">See more</a>.</li>
+            <li>Hamming: Percentage relating the Hamming distance metric to the maximum distance possible.</li>
+            <li>Jaro: Measures the similarity between two strings based on edit distance. <a target="_blank" href="https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance">See more</a>.</li>
+            <li>Levenshtein: Percentage relating the Levenshtein distance metric to the maximum distance possible.</li>
+            <li>Metaphone: Phonetic algorithm that indexes words by their Englihs pronunciation. It improves the Soundex algorithm. <a target="_blank" href="https://en.wikipedia.org/wiki/Metaphone">See more</a>.</li>
+            <li>Soundex: Phonetic algorithm that matches homophones even though they present spelling differences. <a target="_blank" href="https://en.wikipedia.org/wiki/Soundex">See more</a>.</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fork-me">
+    <a href="https://github.com/EHRI/ehri-entity-matcher">
+      <i class="fa fa-github"></i>
+      Github
+    </a>
+  </div>
+  <div class="copyright">© Copyright <a href="https://www.ehri-project.eu">EHRI Consortium</a> @java.time.Year.now(java.time.ZoneId.systemDefault()).getValue</div>
+</footer>
+</body>
+</html>
+
