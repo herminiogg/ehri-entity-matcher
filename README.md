@@ -1,21 +1,15 @@
-EHRI Entity Matching Tool
+EHRI Vocabularies Matching Tool
 =========================
 
-A small (prototype) single page app which matches a list of names against a Solr index
-of entities (places, people, corporate bodies) and lets the user refine and export
-structured (CSV) data.
-
-The Solr schema (on `coredir`) is not yet optimised and is quite slow to index due to the
-use of a Beider Morse filter analyser for the optional phonetic matching.
-
-The datasets used are the Geonames [`allCountries.zip`](https://download.geonames.org/export/dump/allCountries.zip) 
-and [this set](https://portal.ehri-project.eu/api/datasets/nmfUu4u9Hr) of entities from the EHRI portal database.
-
-You can set up a dev instance by running `sudo docker-compose up` from the project directory, which will start an 
-instance of Solr 6.6.6 using the supplied core config on port 8984. You can then run the `./bin/ingest` script to 
-download the datasets and import them into Solr using, respectively, the CSV and JSON update handlers. Note: this will
-take quite some time since Solr has to ingest ~1.5GB of Geonames data.
-
-Running the app on port 9000 can be done by starting the SBT shell and running the `run` command.
+A small (prototype) single page app which translating a list of textual references to controlled vocabulary items,
+using different string similarity algorithms. The tool allows you to parametrise these algorithms to reach the
+best results for your use case. Then, the selected results can be exported to CSV or TSV, which in case of
+the TSV export it can be directly uploaded to the EHRI portal to build a coreference table.
 
 ![Screenshot](screen.png)
+
+## Dependencies
+
+This application strongly relies on the label2thesaurus library (https://github.com/herminiogg/label2thesaurus) that, 
+on its side, wraps vickumar1981's string distance calculation library (https://github.com/vickumar1981/stringdistance) 
+for using it over SKOS vocabularies.
