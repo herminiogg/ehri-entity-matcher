@@ -1,6 +1,6 @@
 import com.typesafe.sbt.packager.MappingsHelper.directory
 
-name := "emt"
+name := "vmt"
 organization := "eu.ehri_project"
 
 version := "1.0-SNAPSHOT"
