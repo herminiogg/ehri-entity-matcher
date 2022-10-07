@@ -8,8 +8,8 @@ from datetime import datetime
 from fabric import task
 from invoke import run as local
 
-deploys_dir = "/opt/emt/deploys"
-target_link = "/opt/emt/target"
+deploys_dir = "/opt/vmt/deploys"
+target_link = "/opt/vmt/target"
 
 
 @task
@@ -18,7 +18,7 @@ def deploy(ctx, clean=False):
     version = get_version_stamp(ctx)
     build_cmd = "sbt dist" if not clean else "sbt clean dist"
     local(build_cmd)
-    file = local("ls -1t target/universal/emt-*.zip").stdout.strip()
+    file = local("ls -1t target/universal/vmt-*.zip").stdout.strip()
     base = os.path.basename(file)
     if not file or file == "":
         raise Exception("Cannot find latest build zip in target/universal!")
@@ -60,8 +60,8 @@ def symlink_target(ctx, version_dir, target):
 
 @task
 def restart(ctx):
-    """Restart the emt process"""
-    ctx.run("sudo service emt restart")
+    """Restart the vmt process"""
+    ctx.run("sudo service vmt restart")
 
 
 @task
